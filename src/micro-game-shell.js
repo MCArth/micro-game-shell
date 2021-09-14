@@ -67,13 +67,24 @@ function setupTimers(shell, pollTime) {
 
 
 function intervalHandler(shell) {
-    var now = shell._nowObject.now()
     var tickDur = 1000 / shell.tickRate
-    var nextTick = shell._lastTick + tickDur
-    if (now < nextTick) return
-    // never fall more than one tick behind
-    shell._lastTick = Math.max(now - tickDur, nextTick)
-    shell.onTick(tickDur)
+
+    // The time we'll stop ticking at if past.
+    // Prevents too much time passing without a new frame.
+    var tickTill = shell._nowObject.now() + (tickDur+5)*1.5
+
+    while (shell._nowObject.now() >= shell._lastTick + tickDur && shell._nowObject.now() < tickTill) {
+        shell.onTick(tickDur)
+        shell._lastTick += tickDur
+    }
+
+    // If we're too far behind, skip ahead.
+    var now = shell._nowObject.now()
+    if (now-shell._lastTick > (tickDur+5)*5) {
+        while (now >= shell._lastTick+tickDur) {
+            shell._lastTick += tickDur
+        }
+    }
 }
 
 function frameHandler(shell) {
