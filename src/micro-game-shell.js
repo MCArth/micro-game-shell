@@ -66,21 +66,28 @@ function setupTimers(shell, pollTime) {
 }
 
 
+var maxTicksPerInterval = 3
+var maxTimePerInterval = 20
 function intervalHandler(shell) {
     var tickDur = 1000 / shell.tickRate
-
     // The time we'll stop ticking at if past.
     // Prevents too much time passing without a new frame.
-    var tickTill = shell._nowObject.now() + (tickDur+5)*1.5
+    var tickTill = shell._nowObject.now() + maxTimePerInterval
+    var numTicks = 0
 
-    while (shell._nowObject.now() >= shell._lastTick + tickDur && shell._nowObject.now() < tickTill) {
+    while (shell._nowObject.now() >= shell._lastTick + tickDur 
+        && shell._nowObject.now() < tickTill 
+        && ++numTicks <= maxTicksPerInterval
+    ) {
         shell.onTick(tickDur)
         shell._lastTick += tickDur
     }
 
     // If we're too far behind, skip ahead.
+    // Allow us to fall about 5 ticks behind.
+    var maxBehind = (tickDur+5)*5
     var now = shell._nowObject.now()
-    if (now-shell._lastTick > (tickDur+5)*5) {
+    if (now-shell._lastTick > maxBehind) {
         while (now >= shell._lastTick+tickDur) {
             shell._lastTick += tickDur
         }
