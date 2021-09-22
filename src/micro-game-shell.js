@@ -61,11 +61,11 @@ function setupTimers(shell, pollTime) {
     requestAnimationFrame(shell._frameCB)
     if (pollTime > 0) {
         shell._intervalCB = intervalHandler.bind(null, shell)
-        shell._interval = setInterval(shell._intervalCB, pollTime)
+        shell._interval = setInterval(shell._intervalCB, Math.max(pollTime, (1000 / shell.tickRate)/2)) // bloxd change - max of pollTime AND tickrateinms/2
     }
 }
 
-
+// bloxd change start - optimise for bloxd
 var maxTicksPerInterval = 3
 var maxTimePerInterval = 20
 function intervalHandler(shell) {
@@ -93,6 +93,7 @@ function intervalHandler(shell) {
         }
     }
 }
+// bloxd change end
 
 function frameHandler(shell) {
     requestAnimationFrame(shell._frameCB)
