@@ -145,9 +145,9 @@ function setupDomElement(shell, el) {
         get: () => hasPL,
         set: (want) => {
             if (want && !hasPL) {
-                el.requestPointerLock()
+                requestPointerLock(el)
             } else if (hasPL && !want) {
-                document.exitPointerLock()
+                exitPointerLock(document)
             }
         }
     })
@@ -166,7 +166,7 @@ function setupDomElement(shell, el) {
     // stickiness via click handler
     el.addEventListener('click', ev => {
         if (shell.stickyPointerLock && !hasPL) {
-            el.requestPointerLock()
+            requestPointerLock(el)
         }
         if (shell.stickyFullscreen && !hasFS) {
             el.requestFullscreen()
@@ -181,6 +181,18 @@ function setupDomElement(shell, el) {
         observer.observe(el)
     } else {
         window.addEventListener('resize', resizeHandler)
+    }
+}
+
+function requestPointerLock(el) {
+    if (el.requestPointerLock) {
+        el.requestPointerLock()
+    }
+}
+
+function exitPointerLock(el) {
+    if (el.exitPointerLock) {
+        el.exitPointerLock()
     }
 }
 
